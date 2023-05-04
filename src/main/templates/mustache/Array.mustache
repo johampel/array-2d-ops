@@ -1,0 +1,861 @@
+{{!
+    The MIT License
+    Copyright © 2023 Johannes Hampel
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+}}
+package de.hipphampel.array2dops.model;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Objects;
+import de.hipphampel.array2dops.geom.Transformation;
+import de.hipphampel.array2dops.geom.TransformationMatrix;
+
+/**
+ * 2D array for {@code {{model.element-type}}s}.
+ * <p>
+ * Instances of this interface are constructed via the factory methods {@code newInstance(...)}. The
+ * Interface provides methods to obtain the dimensions of the 2D array and get/set individual entires
+ * in that array. Also, there are several methods to create sub arrays and transformed views on the
+ * array (e.g. a transposed view, rotated view, and so on).
+ * <p>
+ */
+public interface {{&model.generic-array-type}} {
+
+  /**
+   * Factory method to create an empty instance.
+   * <p>
+   * The resulting instance has the dimension 0/0
+   *
+   * @return The new instance
+   */
+  static {{#is-generic}}<S> {{model.array-type}}<S>{{/is-generic}}{{^is-generic}}{{&model.generic-array-type}}{{/is-generic}} newInstance() {
+    return new {{#is-generic}}{{model.array-type-impl}}<>{{/is-generic}}{{^is-generic}}{{&model.generic-array-type-impl}}{{/is-generic}}();
+  }
+
+  /**
+   * Factory method to create a new instance having the given dimension.
+   * <p>
+   * Allocates a matching array.
+   *
+   * @param width The width of the array
+   * @param height The height of the array
+   *
+   * @return The new instance
+   */
+  static {{#is-generic}}<S> {{model.array-type}}<S>{{/is-generic}}{{^is-generic}}{{&model.generic-array-type}}{{/is-generic}} newInstance(int width, int height) {
+    return new {{#is-generic}}{{model.array-type-impl}}<>{{/is-generic}}{{^is-generic}}{{&model.generic-array-type-impl}}{{/is-generic}}(width, height);
+  }
+
+  /**
+   * Factory method to create a new instance having the given dimension and data.
+   *
+   * @param data The data
+   * @param width The width of the array
+   * @param height The height of the array
+   */
+  static {{#is-generic}}<S> {{model.array-type}}<S>{{/is-generic}}{{^is-generic}}{{&model.generic-array-type}}{{/is-generic}} newInstance({{#is-generic}}S{{/is-generic}}{{^is-generic}}{{model.element-type}}{{/is-generic}}[] data, int width, int height) {
+    return new {{#is-generic}}{{model.array-type-impl}}<>{{/is-generic}}{{^is-generic}}{{&model.generic-array-type-impl}}{{/is-generic}}(data, width, height);
+  }
+
+  /**
+   * Checks, whether this instance owns the memory.
+   *
+   * @return {@code true}, if owning the memory.
+   */
+  default boolean isArrayOwner() {
+    return false;
+  }
+
+  /**
+   * Gets the array of this instance.
+   * <p>
+   * In opposite to {@code toArray} it does not create a deep copy, but returns the memory directly
+   * associated with this instance. In case that the instance does not own the array, it throws an
+   * exception.
+   *
+   * @return The array data
+   * @throws UnsupportedOperationException in case the array is not owned by this instance.
+   */
+  default {{model.element-type}}[] getData() {
+    throw new UnsupportedOperationException("Not array owner");
+  }
+
+  /**
+   * Gets a deep copy of the data as a simple array.
+   *
+   * @return The array
+   */
+  default {{model.element-type}}[] toArray() {
+    int w = getWidth();
+    int h = getHeight();
+    {{model.element-type}}[] array = {{#is-generic}}(T[])new Object{{/is-generic}}{{^is-generic}}new {{model.element-type}}{{/is-generic}}[w * h];
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        array[x + w * y] = getUnsafe(x, y);
+      }
+    }
+    return array;
+  }
+
+  /**
+   * Gets the width.
+   *
+   * @return The width
+   */
+  int getWidth();
+
+  /**
+   * Gets the height.
+   *
+   * @return The height
+   */
+  int getHeight();
+
+  /**
+   * Checks, whether the given coordinate is inside the array.
+   *
+   * @param x The column index
+   * @param y The row index
+   *
+   * @return {@code true}, if in array
+   */
+  default boolean isCoordinateInArray(int x, int y) {
+    return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
+  }
+
+  /**
+   * Checks, whether the given region is inside the array.
+   *
+   * @param x The column index
+   * @param y The row index
+   * @param width The width of the region
+   * @param height The height of the region
+   *
+   * @return {@code true}, if in array
+   */
+  default boolean isRegionInArray(int x, int y, int width, int height) {
+      return x >= 0 && y >= 0 && width >= 0 && height >= 0 && x + width <= getWidth() &&  y + height <= getHeight();
+  }
+
+  /**
+   * Gets the value at the given coordinate.
+   * <p>
+   * This method also makes some check, whether the given coordinates are in range.
+   *
+   * @param x The column index
+   * @param y The row index
+   *
+   * @return The value
+   *
+   * @see #getUnsafe(int, int)
+   */
+  default {{model.element-type}} get(int x, int y) {
+    if (!isCoordinateInArray(x, y)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format("x=%d, y=%d are not in array with size width=%d and height=%d", x, y, getWidth(), getHeight()));
+    }
+    return getUnsafe(x, y);
+  }
+
+  /**
+   * Gets the value at the given coordinate.
+   * <p>
+   * This method makes no check, whether the coordinates are valid.
+   *
+   * @param x The column index
+   * @param y The row index
+   *
+   * @return The value
+   *
+   * @see #get(int, int)
+   */
+  {{model.element-type}} getUnsafe(int x, int y);
+
+  /**
+   * Sets the value at the given coordinate.
+   * <p>
+   * This method also makes some check, whether the given coordinates are in range.
+   *
+   * @param x The column index
+   * @param y The row index
+   * @param value The value to set
+   *
+   * @return This instance
+   *
+   * @see #setUnsafe(int, int, {{model.element-type}})
+   */
+  default {{&model.generic-array-type}} set(int x, int y, {{model.element-type}} value) {
+    if (!isCoordinateInArray(x, y)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format("x=%d, y=%d are not in array with size width=%d and height=%d", x, y, getWidth(), getHeight()));
+    }
+    setUnsafe(x, y, value);
+    return this;
+  }
+
+  /**
+   * Sets the value at the given coordinate.
+   * <p>
+   * This method makes no check, whether the coordinates are valid.
+   *
+   * @param x The column index
+   * @param y The row index
+   * @param value The value to set
+   *
+   * @see #set(int, int, {{model.element-type}})
+   */
+  void setUnsafe(int x, int y, {{model.element-type}} value);
+
+  /**
+   * Checks, whether this instance is read only.
+   *
+   * @return {@code true}, if read only
+   */
+  default boolean isReadOnly() {
+    return false;
+  }
+
+  /**
+   * Returns a read only version of this instance.
+   *
+   * @return The read only instance
+   */
+  default {{&model.generic-array-type}} toReadOnly() {
+    return new ReadOnly{{&model.generic-array-type-impl}}(this);
+  }
+
+  /**
+   * Creates a deep copy of this instance.
+   *
+   * @return The copy
+   */
+  default {{&model.generic-array-type}} copy() {
+    return {{model.array-type}}.newInstance(toArray(), getWidth(), getHeight());
+  }
+
+  /**
+   * Creates a shallow sub-region of this instance.
+   * <p>
+   * The returned instance shares the same memory with this one.
+   *
+   * @param x The x coordinate of the region
+   * @param y The y coordinate of the region
+   * @param width The width of the region
+   * @param height The height of the region
+   *
+   * @return The region
+   */
+  default {{&model.generic-array-type}} shallowRegion(int x, int y, int width, int height) {
+    if (x == 0 && y == 0 && width == getWidth() && height == getHeight()) {
+      return this;
+    }
+    if (!isRegionInArray(x, y, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format("Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d", x, y, width, height, getWidth(), getHeight()));
+    }
+    return new Sub{{&model.generic-array-type-impl}}(this, x, y, width, height);
+  }
+
+  /**
+   * Creates a deeply copied sub-region of this instance.
+   * <p>
+   * The returned instance owns its memory
+   *
+   * @param x The x coordinate of the region
+   * @param y The y coordinate of the region
+   * @param width The width of the region
+   * @param height The height of the region
+   *
+   * @return The region
+   */
+  default {{&model.generic-array-type}} copyRegion(int x, int y, int width, int height) {
+    if (x == 0 && y == 0 && width == getWidth() && height == getHeight()) {
+      return copy();
+    }
+    if (!isRegionInArray(x, y, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format(
+          "Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d",
+          x, y, width, height, getWidth(), getHeight()));
+    }
+    {{&model.generic-array-type-impl}} region = new {{&model.generic-array-type-impl}}(width, height);
+    for (int dx = 0; dx < width; dx++) {
+      for (int dy = 0; dy < height; dy++) {
+        region.setUnsafe(dx, dy, getUnsafe(dx + x, dy + y));
+      }
+    }
+    return region;
+  }
+
+  /**
+   * Creates a shallow copy and applies the given {@code transformation} to it.
+   * <p>
+   * The returned instance shares the same memory with this one.
+   *
+   * @param transformation The {@link Transformation} to apply
+   *
+   * @return The transformed instance.
+   */
+  default {{&model.generic-array-type}} shallowTransform(Transformation transformation) {
+    if (transformation == Transformation.IDENTITY) {
+      return this;
+    }
+    return new Transform{{&model.generic-array-type-impl}}(this, transformation);
+  }
+
+  /**
+   * Creates a deep copy and applies the given {@code transformation} it.
+   * <p>
+   * The returned instance owns its memory
+   *
+   * @param transformation The {@link Transformation} to apply
+   *
+   * @return The transformed instance.
+   */
+  default {{&model.generic-array-type}} copyTransform(Transformation transformation) {
+    return shallowTransform(transformation).copy();
+  }
+
+  /**
+   * Fills the array with the specified {@code value}.
+   *
+   * @param value The value to use for filling
+   *
+   * @return This instance.
+   */
+  default {{&model.generic-array-type}} fill({{model.element-type}} value) {
+    int w = getWidth();
+    int h = getHeight();
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        setUnsafe(x, y, value);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Fills a rectangular region of the array with the specified {@code value}.
+   *
+   * @param x The x coordinate of the region
+   * @param y The y coordinate of the region
+   * @param width The width of the region
+   * @param height The height of the region
+   * @param value The value to use for filling
+   *
+   * @return This instance.
+   */
+  default {{&model.generic-array-type}} fillRegion(int x, int y, int width, int height, {{model.element-type}} value) {
+    if (!isRegionInArray(x, y, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format(
+          "Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d",
+          x, y, width, height, getWidth(), getHeight()));
+    }
+    for(int dx = x; dx < width; dx++) {
+      for(int dy = 0; dy < height; dy++) {
+        setUnsafe(dx, dy, value);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Copies the content of {@code value} into this instance, starting at the coordinate.
+   *
+   * @param x The x coordinate of the region
+   * @param y The y coordinate of the region
+   * @param value The array to use for filling
+   *
+   * @return This instance.
+   */
+  default {{&model.generic-array-type}} fillFrom(int x, int y, {{&model.generic-array-type}} value) {
+    int w = value.getWidth();
+    int h = value.getHeight();
+    if (!isRegionInArray(x, y, w, h)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format(
+          "Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d",
+          x, y, w, h, getWidth(), getHeight()));
+      }
+      for(int dx = x; dx < w; dx++) {
+        for(int dy = 0; dy < h; dy++) {
+          setUnsafe(dx, dy, value.getUnsafe(dx, dy));
+        }
+      }
+      return this;
+  }
+
+  /**
+   * Prints the instance to {@code stdout}, each cell separated by a comma and each row by a newline.
+   */
+  default void print() {
+    PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
+    print(out);
+    out.flush();
+  }
+
+  /**
+   * Prints the instance to {@code out}, each cell separated by a comma and each row by a newline.
+   *
+   * @param out The {@link PrintWriter} to write to
+   */
+  default void print(PrintWriter out) {
+    print(out, ", ", "\n");
+  }
+
+  /**
+   * Prints the instance to a string, each cell separated by a comma and each row by a newline.
+   *
+   * @return The string
+   */
+  default String printToString() {
+    return printToString(", ", "\n");
+  }
+
+  /**
+   * Prints the instance to a string using the given separators.
+   *
+   * @param cellSep Separator to use for the cell/columns
+   * @param rowSep Separator to use for the lines/rows
+   */
+  default String printToString(String cellSep, String rowSep) {
+    try(StringWriter out = new StringWriter()) {
+      print(new PrintWriter(out), cellSep, rowSep);
+      out.flush();
+      return out.toString();
+    }
+    catch(IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * Prints the instance to {@code out} using the given separators.
+   *
+   * @param out The writer to use.
+   * @param cellSep Separator to use for the cell/columns
+   * @param rowSep Separator to use for the lines/rows
+   */
+  default void print(PrintWriter out, String cellSep, String rowSep) {
+    for(int y = 0; y < getHeight(); y++) {
+      for(int x = 0; x < getWidth(); x++) {
+        out.print(getUnsafe(x, y));
+        if (x + 1 < getWidth()) {
+          out.print(cellSep);
+        }
+      }
+      if (y + 1 < getHeight()) {
+        out.print(rowSep);
+      }
+    }
+  }
+
+  {{#is-generic}}@SuppressWarnings("unchecked"){{/is-generic}}
+  default boolean defaultEquals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof {{model.array-type}})) {
+      return false;
+    }
+    {{&model.generic-array-type}} that = ({{&model.generic-array-type}}) o;
+    int w = getWidth();
+    int h = getHeight();
+    if (w != that.getWidth() || h != that.getHeight()) {
+      return false;
+    }
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        if ({{#is-generic}}!Objects.equals(getUnsafe(x, y), that.getUnsafe(x, y)){{/is-generic}}{{^is-generic}}getUnsafe(x, y) != that.getUnsafe(x, y){{/is-generic}}) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  default int defaultHashCode() {
+    int w = getWidth();
+    int h = getHeight();
+    int result = Objects.hash(w, h);
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        result = result * 31 + Objects.hash(getUnsafe(x, y));
+      }
+    }
+    return result;
+  }
+}
+
+class {{&model.generic-array-type-impl}} implements {{&model.generic-array-type}} {
+
+  final {{model.element-type}}[] data;
+  final int width;
+  final int height;
+
+  {{#is-generic}}@SuppressWarnings("unchecked"){{/is-generic}}
+  {{model.array-type-impl}}() {
+    this({{#is-generic}}(T[])new Object{{/is-generic}}{{^is-generic}}new {{model.element-type}}{{/is-generic}}[0], 0, 0);
+  }
+
+  {{#is-generic}}@SuppressWarnings("unchecked"){{/is-generic}}
+  {{model.array-type-impl}}(int width, int height) {
+    this({{#is-generic}}(T[])new Object{{/is-generic}}{{^is-generic}}new {{model.element-type}}{{/is-generic}}[Math.max(0, width * height)], width, height);
+  }
+
+  {{model.array-type-impl}}({{model.element-type}}[] data, int width, int height) {
+    this.data = Objects.requireNonNull(data);
+    if (width < 0) {
+      throw new ArrayIndexOutOfBoundsException(String.format("width must not be negative, but is %d", width));
+    }
+    if (height < 0) {
+      throw new ArrayIndexOutOfBoundsException(String.format("height must not be negative, but is %d", height));
+    }
+    if (width * height != data.length) {
+      throw new ArrayIndexOutOfBoundsException(String.format("data size = %d differs from logical size %dx%d", data.length, width, height));
+    }
+    this.width = width;
+    this.height = height;
+  }
+
+  @Override
+  public int getWidth() {
+    return this.width;
+  }
+
+  @Override
+  public int getHeight() {
+    return this.height;
+  }
+
+  @Override
+  public boolean isArrayOwner() {
+    return true;
+  }
+
+  @Override
+  public {{model.element-type}}[] getData() {
+    return this.data;
+  }
+
+  @Override
+  {{#is-generic}}@SuppressWarnings("unchecked"){{/is-generic}}
+  public {{model.element-type}}[] toArray() {
+    {{model.element-type}}[] array = {{#is-generic}}(T[])new Object{{/is-generic}}{{^is-generic}}new {{model.element-type}}{{/is-generic}}[getWidth() * getHeight()];
+    System.arraycopy(this.data, 0, array, 0, this.data.length);
+    return array;
+  }
+
+  @Override
+  public {{model.element-type}} getUnsafe(int x, int y) {
+    return data[x + this.width * y];
+  }
+
+  @Override
+  public void setUnsafe(int x, int y, {{model.element-type}} value) {
+    data[x + this.width * y] = value;
+  }
+
+  @Override
+  public {{&model.generic-array-type}} copyRegion(int x, int y, int width, int height) {
+    if (x == 0 && y == 0 && width == getWidth() && height == getHeight()) {
+      return copy();
+    }
+    if (!isRegionInArray(x, y, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format("Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d", x, y, width, height, getWidth(), getHeight()));
+    }
+    {{&model.generic-array-type-impl}} region = new {{&model.generic-array-type-impl}}(width, height);
+    int pw = getWidth();
+    for (int dy = 0; dy < height; dy++) {
+      System.arraycopy(this.data, (dy + y) * pw + x, region.data, dy * width, width);
+    }
+    return region;
+  }
+
+  @Override
+  public {{&model.generic-array-type}} fill({{model.element-type}} value) {
+    Arrays.fill(this.data, value);
+    return this;
+  }
+
+  @Override
+  public {{&model.generic-array-type}} fillRegion(int x, int y, int width, int height, {{model.element-type}} value) {
+    if (x == 0 && y == 0 && width == getWidth() && y == getHeight()) {
+      return fill(value);
+    }
+    if (!isRegionInArray(x, y, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format(
+          "Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d",
+          x, y, width, height, getWidth(), getHeight()));
+    }
+    for(int dy = 0; dy < height; dy++) {
+      Arrays.fill(this.data, (y+dy) * this.width + x, (y+dy) * this.width + x + width, value);
+    }
+    return this;
+  }
+
+  @Override
+  public {{&model.generic-array-type}} fillFrom(int x, int y, {{&model.generic-array-type}} value) {
+    {{&model.generic-array-type}} effectiveValue = value;
+    if (value instanceof ReadOnly{{model.array-type-impl}} roImpl) {
+      effectiveValue = roImpl.delegate;
+    }
+    if (!(effectiveValue instanceof {{model.array-type-impl}} impl)) {
+      return {{model.array-type}}.super.fillFrom(x, y, value);
+    }
+    int w = impl.getWidth();
+    int h = impl.getHeight();
+    if (!isRegionInArray(x, y, w, h)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format(
+          "Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d",
+          x, y, w, h, getWidth(), getHeight()));
+    }
+    for(int dy = 0; dy < h; dy++) {
+      System.arraycopy(impl.data, w * dy, this.data, x + (y+dy) * this.width, w);
+    }
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return defaultEquals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return defaultHashCode();
+  }
+}
+
+class ReadOnly{{&model.generic-array-type-impl}} implements {{&model.generic-array-type}} {
+
+  final {{&model.generic-array-type}} delegate;
+
+  ReadOnly{{model.array-type-impl}}({{&model.generic-array-type}} delegate) {
+    this.delegate = Objects.requireNonNull(delegate);
+  }
+
+  @Override
+  public int getWidth() {
+    return delegate.getWidth();
+  }
+
+  @Override
+  public int getHeight() {
+    return delegate.getHeight();
+  }
+
+  @Override
+  public boolean isReadOnly() {
+    return true;
+  }
+
+  @Override
+  public {{&model.generic-array-type}} toReadOnly() {
+    return this;
+  }
+
+  @Override
+  public {{model.element-type}} getUnsafe(int x, int y) {
+    return delegate.getUnsafe(x, y);
+  }
+
+  @Override
+  public void setUnsafe(int x, int y, {{model.element-type}} value) {
+    throw new UnsupportedOperationException("read-only instance");
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return defaultEquals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return defaultHashCode();
+  }
+
+}
+
+class Sub{{&model.generic-array-type-impl}} implements {{&model.generic-array-type}} {
+
+  final {{&model.generic-array-type}} delegate;
+  final int dx;
+  final int dy;
+  final int width;
+  final int height;
+
+  Sub{{model.array-type-impl}}({{&model.generic-array-type}} delegate, int dx, int dy, int width, int height) {
+    this.delegate = Objects.requireNonNull(delegate);
+    if (!delegate.isRegionInArray(dx, dy, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format("Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d", dx, dy, width, height, getWidth(), getHeight()));
+    }
+    this.dx = dx;
+    this.dy = dy;
+    this.width = width;
+    this.height = height;
+  }
+
+  @Override
+  public int getWidth() {
+    return this.width;
+  }
+
+  @Override
+  public int getHeight() {
+    return this.height;
+  }
+
+  @Override
+  {{#is-generic}}@SuppressWarnings("unchecked"){{/is-generic}}
+  public {{model.element-type}}[] toArray() {
+    {{&model.generic-array-type}} effectiveDelegate = delegate;
+    if (effectiveDelegate instanceof ReadOnly{{model.array-type-impl}} roImpl) {
+      effectiveDelegate = roImpl.delegate;
+    }
+
+    int w = getWidth();
+    int h = getHeight();
+    {{model.element-type}}[] array = {{#is-generic}}(T[])new Object{{/is-generic}}{{^is-generic}}new {{model.element-type}}{{/is-generic}}[w * h];
+
+    if (effectiveDelegate instanceof {{model.array-type-impl}} impl) {
+      // The more performant way...
+      int pw = impl.getWidth();
+      for (int y = 0; y < h; y++) {
+        System.arraycopy(impl.getData(), (y+dy) * pw + dx, {{#is-generic}}(Object[]) {{/is-generic}}array, y * w, w);
+      }
+    } else {
+      // The less performant way...
+      for (int x = 0; x < w; x++) {
+        for (int y = 0; y < h; y++) {
+          array[x + w * y] = effectiveDelegate.getUnsafe(x + dx, y + dy);
+        }
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public {{model.element-type}} getUnsafe(int x, int y) {
+    return delegate.getUnsafe(x + dx, y + dy);
+  }
+
+  @Override
+  public void setUnsafe(int x, int y, {{model.element-type}} value) {
+    delegate.setUnsafe(x + dx, y + dy, value);
+  }
+
+  @Override
+  public {{&model.generic-array-type}} shallowRegion(int x, int y, int width, int height) {
+    if (x == 0 && y == 0 && width == getWidth() && height == getHeight()) {
+      return this;
+    }
+    if (!isRegionInArray(x, y, width, height)) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format("Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d", x, y, width, height, getWidth(), getHeight()));
+    }
+    return new Sub{{&model.generic-array-type-impl}}(delegate, this.dx + x,  this.dy + y, width, height);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return defaultEquals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return defaultHashCode();
+  }
+}
+
+class Transform{{&model.generic-array-type-impl}} implements {{&model.generic-array-type}} {
+
+  final {{&model.generic-array-type}} delegate;
+  final Transformation transformation;
+  final TransformationMatrix matrix;
+
+  Transform{{model.array-type-impl}}({{&model.generic-array-type}} delegate, Transformation transformation) {
+    this.delegate = Objects.requireNonNull(delegate);
+    this.transformation = Objects.requireNonNull(transformation);
+    this.matrix = transformation.getTransformationMatrix(delegate.getWidth(), delegate.getHeight());
+  }
+
+  @Override
+  public int getWidth() {
+    return transformation.isSwappingWidthAndHeight()? delegate.getHeight() : delegate.getWidth();
+  }
+
+  @Override
+  public int getHeight() {
+    return transformation.isSwappingWidthAndHeight()? delegate.getWidth() : delegate.getHeight();
+  }
+
+  @Override
+  public {{model.element-type}} getUnsafe(int x, int y) {
+    if (transformation.isSwappingWidthAndHeight()) {
+      return delegate.getUnsafe(matrix.transformY(y, x), matrix.transformX(y, x));
+    } else {
+      return delegate.getUnsafe(matrix.transformX(x, y), matrix.transformY(x, y));
+    }
+  }
+
+  @Override
+  public void setUnsafe(int x, int y, {{model.element-type}} value) {
+    if (transformation.isSwappingWidthAndHeight()) {
+      delegate.setUnsafe(matrix.transformY(y, x), matrix.transformX(y, x), value);
+    } else {
+      delegate.setUnsafe(matrix.transformX(x, y), matrix.transformY(x, y), value);
+    }
+  }
+
+  @Override
+  public {{&model.generic-array-type}} shallowTransform(Transformation transformation) {
+    if (transformation == Transformation.IDENTITY) {
+      return this;
+    }
+
+    Transformation newTransformation = Transformation.chain(this.transformation, transformation);
+    if (newTransformation == Transformation.IDENTITY) {
+      return this.delegate;
+    }
+
+    return new Transform{{&model.generic-array-type-impl}}(this.delegate, newTransformation);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return defaultEquals(o);
+  }
+
+  @Override
+  public int hashCode() {
+    return defaultHashCode();
+  }
+}

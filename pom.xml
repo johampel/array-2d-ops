@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    The MIT License
+    Copyright © 2023 Johannes Hampel
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.hipphampel</groupId>
+  <artifactId>array-2d-ops</artifactId>
+  <version>jgitver-provided-version</version>
+
+  <description>Provides operations on 2D arrays</description>
+  <url>https://github.com/johampel/array-2d-ops</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:johampel/array-2d-ops.git</connection>
+    <developerConnection>scm:git:ssh://github.com:johampel/array-2d-ops.git</developerConnection>
+    <url>https://github.com/johampel/array-2d-ops/</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>Johannes Hampel</name>
+      <organization>Johannes Hampel</organization>
+      <email>johannes@hipphampel.de</email>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Johannes Hampel</name>
+  </organization>
+  <inceptionYear>2023</inceptionYear>
+
+  <name>array-2d-ops</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+
+    <!-- Plugin Versions -->
+    <maven-build-helper-plugin.version>3.3.0</maven-build-helper-plugin.version>
+    <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    <maven-license-plugin.version>4.1</maven-license-plugin.version>
+    <mustache-maven-plugin.version>1.1</mustache-maven-plugin.version>
+    <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+
+    <!-- Dependencies -->
+    <assertj.version>3.22.0</assertj.version>
+    <junit.version>5.4.0</junit.version>
+    <mockito.version>4.5.1</mockito.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>${maven-clean-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>${maven-install-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>net.wouterdanes</groupId>
+        <artifactId>mustache-maven-plugin</artifactId>
+        <version>${mustache-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>run-mustache-template</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>mustache</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <templates>
+            <!-- Generation of the base models -->
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/boolean.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Boolean2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/byte.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Byte2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/char.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Char2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/double.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Double2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/float.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Float2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/int.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Int2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/long.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Long2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/object.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Object2DArray.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/Array.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/short.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/model/Short2DArray.java</outputPath>
+            </template>
+            <!-- MatrixOps -->
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/bigdecimal.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/BigDecimalMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/boolean.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/BooleanMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/byte.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/ByteMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/char.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/CharMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/double.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/DoubleMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/float.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/FloatMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/long.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/LongMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/int.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/IntMatrix.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/MatrixOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/short.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/matrix/ShortMatrix.java</outputPath>
+            </template>
+            <!-- DrawOps -->
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/boolean.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Boolean2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/byte.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Byte2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/char.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Char2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/double.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Double2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/float.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Float2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/int.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Int2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/long.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Long2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/object.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Object2DArrayDrawContext.java</outputPath>
+            </template>
+            <template>
+              <templateFile>${project.basedir}/src/main/templates/mustache/DrawOps.mustache</templateFile>
+              <context>file:${project.basedir}/src/main/templates/config/short.yml</context>
+              <outputPath>${project.build.directory}/generated-sources/mustache/src/gen/java/de/hipphampel/array2dops/draw/Short2DArrayDrawContext.java</outputPath>
+            </template>
+          </templates>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${maven-build-helper-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/mustache/src/gen/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>${maven-license-plugin.version}</version>
+        <configuration>
+          <properties>
+            <owner>Johannes Hampel</owner>
+            <email>johannes@hipphampel.de</email>
+          </properties>
+          <licenseSets>
+            <licenseSet>
+              <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+              <excludes>
+                <exclude>.editorconfig</exclude>
+              </excludes>
+            </licenseSet>
+          </licenseSets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven-resources-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>${maven-site-plugin.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+              <show>protected</show>
+              <quiet>true</quiet>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-doc</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>${maven-license-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>check-license</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+</project>

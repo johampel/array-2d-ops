@@ -1,0 +1,285 @@
+{{!
+    The MIT License
+    Copyright © 2023 Johannes Hampel
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+}}
+package de.hipphampel.array2dops.matrix;
+
+import de.hipphampel.array2dops.model.{{model.array-type}};
+import de.hipphampel.array2dops.geom.Transformation;
+{{&matrix.special-imports}}
+
+/**
+ * Provides simple matrix related operations for 2D arrays based on {@code {{model.array-type}} }.
+ */
+public class {{matrix.class-name}} {
+
+  /**
+   * Creates an empty matrix of the given dimensions.
+   *
+   * @param columns Number of columns
+   * @param rows Number of rows
+   *
+   * @return The matrix
+   */
+  public static {{&model.generic-array-type}} newMatrix(int columns, int rows) {
+    return {{model.array-type}}.{{#is-generic}}<{{model.element-type}}>{{/is-generic}}newInstance(columns, rows).fill({{matrix.zero}});
+  }
+
+  /**
+   * Creates a new matrix with the given initial data.
+   *
+   * @param The initial data
+   * @param columns Number of columns
+   * @param rows Number of rows
+   *
+   * @return The matrix
+   */
+  public static {{&model.generic-array-type}} newMatrix({{model.element-type}}[] data, int columns, int rows) {
+    return {{model.array-type}}.{{#is-generic}}<{{model.element-type}}>{{/is-generic}}newInstance(data, columns, rows);
+  }
+
+  /**
+   * Crates a new unit matrix with the given size.
+   *
+   * @param size Size of the matrix
+   *
+   * @return The matrix
+   */
+  public static {{&model.generic-array-type}} newUnitMatrix(int size) {
+    {{&model.generic-array-type}} matrix = newMatrix(size, size);
+    for(int i = 0; i < size; i++) {
+      matrix.setUnsafe(i, i, {{matrix.one}});
+    }
+    return matrix;
+  }
+
+  /**
+   * Computes the sum of {@code left} and {@code right}.
+   * <p>
+   * The result is stored in a new matrix.
+   *
+   * @param left Left hand side
+   * @param right Right hand side
+   *
+   * @return The result
+   */
+  public static {{&model.generic-array-type}} add({{&model.generic-array-type}} left, {{&model.generic-array-type}} right) {
+    if (left.getWidth() != right.getWidth() || left.getHeight() != right.getHeight()) {
+      throw new IllegalArgumentException("Incompatible matrices sizes");
+    }
+    return addInplace(left.copy(), right);
+  }
+
+  /**
+   * Computes the sum of {@code left} and {@code right} inplace.
+   * <p>
+   * The result is stored in {@code left}
+   *
+   * @param left Left hand side
+   * @param right Right hand side
+   *
+   * @return The result, {@code left}
+   */
+  public static {{&model.generic-array-type}} addInplace({{&model.generic-array-type}} left, {{&model.generic-array-type}} right) {
+    int w = left.getWidth();
+    int h = left.getHeight();
+    if (w != right.getWidth() || h != right.getHeight()) {
+      throw new IllegalArgumentException("Incompatible matrices sizes");
+    }
+
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        {{model.element-type}} l = left.getUnsafe(x, y);
+        {{model.element-type}} r = right.getUnsafe(x, y);
+        left.setUnsafe(x, y, {{&matrix.add}});
+      }
+    }
+    return left;
+  }
+
+  /**
+   * Computes the diff of {@code left} and {@code right}.
+   * <p>
+   * The result is stored in a new matrix.
+   *
+   * @param left Left hand side
+   * @param right Right hand side
+   *
+   * @return The result
+   */
+  public static {{&model.generic-array-type}} sub({{&model.generic-array-type}} left, {{&model.generic-array-type}} right) {
+    if (left.getWidth() != right.getWidth() || left.getHeight() != right.getHeight()) {
+      throw new IllegalArgumentException("Incompatible matrices sizes");
+    }
+    return subInplace(left.copy(), right);
+  }
+
+  /**
+   * Computes the diff of {@code left} and {@code right} inplace.
+   * <p>
+   * The result is stored in {@code left}
+   *
+   * @param left Left hand side
+   * @param right Right hand side
+   *
+   * @return The result, {@code left}
+   */
+  public static {{&model.generic-array-type}} subInplace({{&model.generic-array-type}} left, {{&model.generic-array-type}} right) {
+    int w = left.getWidth();
+    int h = left.getHeight();
+    if (w != right.getWidth() || h != right.getHeight()) {
+      throw new IllegalArgumentException("Incompatible matrices sizes");
+    }
+
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        {{model.element-type}} l = left.getUnsafe(x, y);
+        {{model.element-type}} r = right.getUnsafe(x, y);
+        left.setUnsafe(x, y, {{&matrix.sub}});
+      }
+    }
+    return left;
+  }
+
+  /**
+   * Performs a scalar multiplication.
+   * <p>
+   * Multiplies {@code factor} with {@code arg}, does not change the arguments.
+   *
+   * @param factor The scalar
+   * @param arg The matrix
+   *
+   * @return The result.
+   */
+  public static {{&model.generic-array-type}} scalarMul({{model.element-type}} factor, {{&model.generic-array-type}} arg) {
+    return scalarMulInplace(factor, arg.copy());
+  }
+
+  /**
+   * Performs a scalar multiplication, inplace.
+   * <p>
+   * Multiplies {@code factor} with {@code arg} and stores the result in {@code arg}
+   *
+   * @param factor The scalar
+   * @param arg The matrix
+   *
+   * @return The result, {@code arg}.
+   */
+  public static {{&model.generic-array-type}} scalarMulInplace({{model.element-type}} factor, {{&model.generic-array-type}} arg) {
+    int w = arg.getWidth();
+    int h = arg.getHeight();
+    {{model.element-type}} l = factor;
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        {{model.element-type}} r = arg.getUnsafe(x, y);
+        arg.setUnsafe(x, y, {{&matrix.mul}});
+      }
+    }
+    return arg;
+  }
+
+  /**
+   * Performs a multiplication of {@code left} and {@code right}
+   * <p>
+   * @param left Left hand side
+   * @param right Right hand side
+   *
+   * @return The result
+   */
+  public static {{&model.generic-array-type}} mul({{&model.generic-array-type}} left, {{&model.generic-array-type}} right) {
+    if (left.getWidth() != right.getHeight()) {
+      throw new IllegalArgumentException("Incompatible matrices sizes");
+    }
+    int w = right.getWidth();
+    int h = left.getHeight();
+    int n = left.getWidth();
+    {{&model.generic-array-type}} result = newMatrix(w, h);
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        {{model.element-type}} v = {{matrix.zero}};
+        for(int i=0; i < n; i++) {
+          {{model.element-type}} l = left.getUnsafe(i, y);
+          {{model.element-type}} r = right.getUnsafe(x, i);
+          v = {{&matrix.add-mul}};
+        }
+        result.setUnsafe(x, y, v);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Computes the negated {@code arg}.
+   * <p>
+   * The method creates a new matrix and does not change {@code arg}
+   *
+   * @param arg The argument
+   *
+   * @return The result
+   */
+  public static {{&model.generic-array-type}} negate({{&model.generic-array-type}} arg) {
+    return negateInplace(arg.copy());
+  }
+
+
+  /**
+  * Computes the negated {@code arg} inplace.
+  * <p>
+  * The method negates all fields of {@code arg}
+  *
+  * @param arg The argument
+  *
+  * @return The result, {@code arg}
+  */
+  public static {{&model.generic-array-type}} negateInplace({{&model.generic-array-type}} arg) {
+    int w = arg.getWidth();
+    int h = arg.getHeight();
+    for(int x = 0; x < w; x++) {
+      for(int y = 0; y < h; y++) {
+        {{model.element-type}} v = arg.getUnsafe(x, y);
+        arg.setUnsafe(x, y, {{&matrix.neg}});
+      }
+    }
+    return arg;
+  }
+
+  /**
+   * Computes the transposed matrix of {@code arg}.
+   *
+   * @param arg The argument
+   *
+   * @return The result
+   */
+  public static {{&model.generic-array-type}} transpose({{&model.generic-array-type}} arg) {
+    return arg.copyTransform(Transformation.TRANSPOSE);
+  }
+
+  /**
+   * Returns a shallow the transposed matrix of {@code arg}.
+   *
+   * @param arg The argument
+   *
+   * @return The result, shares memory with {@code arg}
+   */
+  public static {{&model.generic-array-type}} transposeInplace({{&model.generic-array-type}} arg) {
+    return arg.shallowTransform(Transformation.TRANSPOSE);
+  }
+}

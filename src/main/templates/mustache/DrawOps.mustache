@@ -1,0 +1,262 @@
+{{!
+    The MIT License
+    Copyright © 2023 Johannes Hampel
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+}}
+
+package de.hipphampel.array2dops.draw;
+
+import de.hipphampel.array2dops.model.{{&model.array-type}};
+import de.hipphampel.array2dops.geom.Line;
+import de.hipphampel.array2dops.geom.Rectangle;
+import java.util.Objects;
+
+/**
+ * Fundamental primitives to perform drawing operations on an {@link  {{&model.array-type}} }.
+ * <p>
+ * Provides only basic operations like drawing points, lines, rects, and circles.
+ */
+public class {{&draw.generic-class-name}} {
+
+  private final {{&model.generic-array-type}} canvas;
+  private final Rectangle clip;
+  private {{model.element-type}} color;
+
+  /**
+   * Constructor.
+   *
+   * @param canvas The array to draw in.
+   */
+  public {{&draw.class-name}}({{&model.generic-array-type}} canvas) {
+    this.canvas = Objects.requireNonNull(canvas);
+    this.clip = new Rectangle(0, 0, canvas.getWidth(), canvas.getHeight());
+  }
+
+  /**
+   * Returns the canvas.
+   *
+   * @return the canvas
+   */
+  public {{&model.generic-array-type}} getCanvas() {
+    return this.canvas;
+  }
+
+  /**
+   * Returns the color.
+   *
+   * @return the color
+   */
+  public {{model.element-type}} getColor() {
+    return this.color;
+  }
+
+  /**
+   * Sets the color.
+   *
+   * @param color The color to use
+   *
+   * @return This instance.
+   */
+  public {{&draw.generic-class-name}} color({{model.element-type}} color) {
+    this.color = color;
+    return this;
+  }
+
+  /**
+   * Fills the cell at the specified coordinate with the current color.
+   * <p>
+   * If the coordinate is not in array, nothing happens.
+   *
+   * @param x The X coordinate
+   * @param y The Y coordinate
+   *
+   * @return This instance.
+   */
+  public {{&draw.generic-class-name}} set(int x, int y) {
+    if (this.clip.contains(x, y)) {
+      this.canvas.setUnsafe(x, y, this.color);
+    }
+    return this;
+  }
+
+  /**
+   * Draws a line from the given start to the end coordinate with the current color.
+   * <p>
+   * If parts of the line are outside the array, these portions are ignored.
+   *
+   * @param x0 X coordinate of the start point
+   * @param y0 Y coordinate of the start point
+   * @param x1 X coordinate of the end point
+   * @param y1 Y coordinate of the end point
+   *
+   * @return This instance.
+   */
+  public {{&draw.generic-class-name}} line(int x0, int y0, int x1, int y1) {
+    Line line = this.clip.intersect(new Line(x0, y0, x1, y1)).orElse(null);
+    if (line == null) {
+      return this;
+    }
+    x0 = line.x0();
+    y0 = line.y0();
+    x1 = line.x1();
+    y1 = line.y1();
+
+    // Basically a bresenham algo
+    int dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    int dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    int err = dx + dy, e2; /* error value e_xy */
+
+    while (true) {
+      set(x0, y0);
+      if (x0 == x1 && y0 == y1) {
+        break;
+      }
+      e2 = 2 * err;
+      if (e2 > dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
+      if (e2 < dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
+    }
+
+    return this;
+  }
+
+  /**
+   * Draws a rect with the current color.
+   * <p>
+   * If parts of the rect are outside the array, these portions are ignored. In order to draw a filled
+   * rect, use {@code fillRect}. The rect is identified by the coordinates of one of the rect diagonals.
+   *
+   * @param x0 X coordinate of the diagonal start point
+   * @param y0 Y coordinate of the diagonal start point
+   * @param x1 X coordinate of the diagonal end point
+   * @param y1 Y coordinate of the diagonal end point
+   *
+   * @return This instance.
+   */
+  public {{&draw.generic-class-name}} rect(int x0, int y0, int x1, int y1) {
+    return line(x0, y0, x1, y0)
+          .line(x1, y0, x1, y1)
+          .line(x1, y1, x0, y1)
+          .line(x0, y1, x0, y0);
+  }
+
+  /**
+   * Fills a rect with the current color.
+   * <p>
+   * If parts of the rect are outside the array, these portions are ignored. In order to draw the outline
+   * of a rect, use {@code rect}. The rect is identified by the coordinates of one of the rect diagonals.
+   *
+   * @param x0 X coordinate of the diagonal start point
+   * @param y0 Y coordinate of the diagonal start point
+   * @param x1 X coordinate of the diagonal end point
+   * @param y1 Y coordinate of the diagonal end point
+   *
+   * @return This instance.
+   */
+  public {{&draw.generic-class-name}} fillRect(int x0, int y0, int x1, int y1) {
+    Rectangle toDraw = this.clip.intersect(new Rectangle(
+      Math.min(x0, x1),
+      Math.min(y0, y1),
+      Math.abs(x1 - x0),
+      Math.abs(y1 - y0))).orElse(null);
+    if (toDraw != null) {
+      int h = toDraw.height();
+      int x = toDraw.x();
+      int y = toDraw.y();
+      int yw = y + toDraw.width();
+      for(int i = 0; i < h + 1; i++) {
+        line(x, y + i, yw, y + i);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Draws a circle with the current color.
+   * <p>
+   * If parts of the cicrle are outside the array, these portions are ignored. In order to fill a
+   * circle, use {@code fillCircle}.
+   *
+   * @param x0 X coordinate of circle center
+   * @param y0 Y coordinate of  circle center
+   * @param r The radius of the instance
+   *
+   * @return This instance.
+   */
+  public {{&draw.generic-class-name}} circle(int x0, int y0, int r) {
+    int d = -r;
+    int x = r;
+    int y = 0;
+
+    while (y <= x) {
+      set(x0 - x, y0 + y);
+      set(x0 + x, y0 + y);
+      set(x0 - x, y0 - y);
+      set(x0 + x, y0 - y);
+      set(x0 + y, y0 - x);
+      set(x0 + y, y0 + x);
+      set(x0 - y, y0 - x);
+      set(x0 - y, y0 + x);
+
+      d += 2 * y + 1;
+      y++;
+      if (d > 0) {
+        x--;
+        d -= 2*x;
+      }
+    }
+
+    return this;
+  }
+
+
+  /**
+  * Fills a circle with the current color.
+  * <p>
+  * If parts of the cicrle are outside the array, these portions are ignored. In order to draw the outline
+  * of a circle, use {@code circle}.
+  *
+  * @param x0 X coordinate of circle center
+  * @param y0 Y coordinate of  circle center
+  * @param r The radius of the instance
+  *
+  * @return This instance.
+  */
+  public {{&draw.generic-class-name}} fillCircle(int x0, int y0, int r) {
+    int d = -r;
+    int x = r;
+    int y = 0;
+
+    while (y <= x) {
+      line(x0 - x, y0 + y, x0 + x, y0 + y);
+      line(x0 - x, y0 - y, x0 + x, y0 - y);
+      line(x0 + y, y0 - x, x0 + y, y0 + x);
+      line(x0 - y, y0 - x, x0 - y, y0 + x);
+
+      d += 2 * y + 1;
+      y++;
+      if (d > 0) {
+        x--;
+        d -= 2*x;
+      }
+    }
+
+    return this;
+  }
+}
