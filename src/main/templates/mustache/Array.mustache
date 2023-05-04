@@ -400,9 +400,9 @@ public interface {{&model.generic-array-type}} {
           "Region x=%d, y=%d width=%d, height=%d is not in array with size width=%d and height=%d",
           x, y, w, h, getWidth(), getHeight()));
       }
-      for(int dx = x; dx < w; dx++) {
+      for(int dx = 0; dx < w; dx++) {
         for(int dy = 0; dy < h; dy++) {
-          setUnsafe(dx, dy, value.getUnsafe(dx, dy));
+          setUnsafe(dx + x, dy +y, value.getUnsafe(dx, dy));
         }
       }
       return this;

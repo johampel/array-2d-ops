@@ -186,9 +186,7 @@ public class Char2DArrayDrawContextTest {
         .color('C')
         .circle(9, 9, 6)
         .color('D')
-        .circle(4, 9, 4)
-
-    ;
+        .circle(4, 9, 4);
 
     assertCanvas("""
         .A..BB.......BB..A..
@@ -223,9 +221,7 @@ public class Char2DArrayDrawContextTest {
         .color('C')
         .fillCircle(9, 9, 6)
         .color('D')
-        .fillCircle(4, 9, 4)
-
-    ;
+        .fillCircle(4, 9, 4);
 
     assertCanvas("""
         .AAABBBBBBBBBBBAAA..
@@ -248,6 +244,40 @@ public class Char2DArrayDrawContextTest {
         AAABBBBBBBBBBBBBAAA.
         .AAABBBBBBBBBBBAAA..
         ..AAAABBBBBBBAAAA...""");
+  }
+
+  @Test
+  public void image() {
+    Char2DArray image = Char2DArray.newInstance("ABCDEFGHIJKLMNOPQRSTUVWXY".toCharArray(), 5, 5);
+
+    context
+        .image(-2, -2, image)
+        .image(-2, 17, image)
+        .image(8, 8, image)
+        .image(17, 17, image)
+        .image(16, -2, image);
+
+    assertCanvas("""
+        MNO.............LMNO
+        RST.............QRST
+        WXY.............VWXY
+        ....................
+        ....................
+        ....................
+        ....................
+        ....................
+        ........ABCDE.......
+        ........FGHIJ.......
+        ........KLMNO.......
+        ........PQRST.......
+        ........UVWXY.......
+        ....................
+        ....................
+        ....................
+        ....................
+        MNO..............MNO
+        RST..............RST
+        WXY..............WXY""");
   }
 
   private void assertCanvas(String expected) {
