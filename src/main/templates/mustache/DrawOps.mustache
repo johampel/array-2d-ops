@@ -194,7 +194,7 @@ public class {{&draw.generic-class-name}} {
   /**
    * Draws a circle with the current color.
    * <p>
-   * If parts of the cicrle are outside the array, these portions are ignored. In order to fill a
+   * If parts of the circle are outside the array, these portions are ignored. In order to fill a
    * circle, use {@code fillCircle}.
    *
    * @param x0 X coordinate of circle center
@@ -233,7 +233,7 @@ public class {{&draw.generic-class-name}} {
   /**
   * Fills a circle with the current color.
   * <p>
-  * If parts of the cicrle are outside the array, these portions are ignored. In order to draw the outline
+  * If parts of the circle are outside the array, these portions are ignored. In order to draw the outline
   * of a circle, use {@code circle}.
   *
   * @param x0 X coordinate of circle center
@@ -264,6 +264,16 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
+  /**
+   * Draws {@code image} at the given position.
+   * <p>
+   * If parts of the image are outside the array, these portions are ignored.
+   *
+   * @param x0 X coordinate where to place the left side of the image
+   * @param y0 Y coordinate where to place the top side of the image
+   * @param image The image
+   * @return This instance.
+   */
   public {{&draw.generic-class-name}} image(int x0, int y0, {{&model.generic-array-type}} image) {
     Rectangle imageRect = new Rectangle(x0, y0, image.getWidth(), image.getHeight());
     Rectangle affectedRect = imageRect.intersect(this.clip).orElse(null);
@@ -281,6 +291,13 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
+  /**
+   * Performs a flood fill using the current color.
+   *
+   * @param x0 X coordinate of the point to start with
+   * @param y0 Y coordinate of the point to start with
+   * @return This instance.
+   */
   public {{&draw.generic-class-name}} fill(int x0, int y0) {
     if (!clip.contains(x0, y0)) {
       return this;
