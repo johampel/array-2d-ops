@@ -28,6 +28,8 @@ model:
   array-type-impl: Char2DArrayImpl
   generic-array-type-impl: Char2DArrayImpl
   element-type: char
+  wrapper-type: Character
+  nio-buffer: CharBuffer
 matrix:
   class-name: CharMatrix
   zero: (char)0

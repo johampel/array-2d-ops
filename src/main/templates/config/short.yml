@@ -28,6 +28,8 @@ model:
   array-type-impl: Short2DArrayImpl
   generic-array-type-impl: Short2DArrayImpl
   element-type: short
+  wrapper-type: Short
+  nio-buffer: ShortBuffer
 matrix:
   class-name: ShortMatrix
   zero: (short)0

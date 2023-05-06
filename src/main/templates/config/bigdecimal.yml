@@ -28,6 +28,7 @@ model:
   array-type-impl: Object2DArrayImpl
   generic-array-type-impl: Object2DArrayImpl<BigDecimal>
   element-type: BigDecimal
+  wrapper-type: BigDecimal
 matrix:
   class-name: BigDecimalMatrix
   special-imports: >

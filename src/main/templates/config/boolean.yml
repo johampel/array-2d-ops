@@ -28,6 +28,7 @@ model:
   array-type-impl: Boolean2DArrayImpl
   generic-array-type-impl: Boolean2DArrayImpl
   element-type: boolean
+  wrapper-type: Boolean
 matrix:
   class-name: BooleanMatrix
   zero: false

@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+{{#model.nio-buffer}}import java.nio.{{model.nio-buffer}};{{/model.nio-buffer}}
 import java.util.Arrays;
 import java.util.Objects;
 import de.hipphampel.array2dops.geom.Transformation;
@@ -118,6 +119,33 @@ public interface {{&model.generic-array-type}} {
     }
     return array;
   }
+
+  {{#model.nio-buffer}}
+  /**
+   * Returns a {@link {{model.nio-buffer}} }.
+   *
+   * Depending on the concrete implementation and the {@code copy} parameter it returns different
+   * flavors of a buffer:
+   *
+   * <ul>
+   * <li>If {@code copy} is {@code true}, the result is always a deep copy of the original array
+   *     so that the buffer is detached from this instance.</li>
+   * <li>If {@code copy} is {@code false}, the returned buffer is read-only, if this instance is
+   *     read-only. If this instance is not read-only, it returns a buffer that wraps the array
+   *     of this instance. This is only possible, in case this instance is the array owner. In
+   *     all other cases the operation is not allowed.</li>
+   * </ul>
+   * @param copy Indicates, whether a deep copy is wanted
+   * @return The buffer
+   * @throws UnsupportedOperationException if action not possible
+   */
+  default {{model.nio-buffer}} to{{model.nio-buffer}}(boolean copy) {
+    if (copy) {
+      return {{model.nio-buffer}}.wrap(toArray());
+    }
+    throw new UnsupportedOperationException("Not supported");
+  }
+  {{/model.nio-buffer}}
 
   /**
    * Gets the width.
@@ -569,6 +597,13 @@ class {{&model.generic-array-type-impl}} implements {{&model.generic-array-type}
     return array;
   }
 
+  {{#model.nio-buffer}}
+  @Override
+  public {{model.nio-buffer}} to{{model.nio-buffer}}(boolean copy) {
+    return copy? {{model.nio-buffer}}.wrap(toArray()):{{model.nio-buffer}}.wrap(this.data);
+  }
+  {{/model.nio-buffer}}
+
   @Override
   public {{model.element-type}} getUnsafe(int x, int y) {
     return data[x + this.width * y];
@@ -680,6 +715,16 @@ class ReadOnly{{&model.generic-array-type-impl}} implements {{&model.generic-arr
   public {{&model.generic-array-type}} toReadOnly() {
     return this;
   }
+
+  {{#model.nio-buffer}}
+  @Override
+  public {{model.nio-buffer}} to{{model.nio-buffer}}(boolean copy) {
+    if (!copy && (this.delegate instanceof {{model.array-type-impl}} impl)) {
+      return delegate.to{{model.nio-buffer}}(false).asReadOnlyBuffer();
+    }
+    return {{model.array-type}}.super.to{{model.nio-buffer}}(copy);
+  }
+  {{/model.nio-buffer}}
 
   @Override
   public {{model.element-type}} getUnsafe(int x, int y) {

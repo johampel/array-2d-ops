@@ -28,6 +28,7 @@ model:
   array-type-impl: Object2DArrayImpl
   generic-array-type-impl: Object2DArrayImpl<T>
   element-type: T
+  wrapper-type: T
 draw:
   class-name: Object2DArrayDrawContext
   generic-class-name: Object2DArrayDrawContext<T>

@@ -28,6 +28,8 @@ model:
   array-type-impl: Byte2DArrayImpl
   generic-array-type-impl: Byte2DArrayImpl
   element-type: byte
+  wrapper-type: Byte
+  nio-buffer: ByteBuffer
 matrix:
   class-name: ByteMatrix
   zero: (byte)0

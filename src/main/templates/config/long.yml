@@ -28,6 +28,8 @@ model:
   array-type-impl: Long2DArrayImpl
   generic-array-type-impl: Long2DArrayImpl
   element-type: long
+  wrapper-type: Long
+  nio-buffer: LongBuffer
 matrix:
   class-name: LongMatrix
   zero: 0

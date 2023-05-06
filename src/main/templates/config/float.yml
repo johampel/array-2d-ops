@@ -28,6 +28,8 @@ model:
   array-type-impl: Float2DArrayImpl
   generic-array-type-impl: Float2DArrayImpl
   element-type: float
+  wrapper-type: Float
+  nio-buffer: FloatBuffer
 matrix:
   class-name: FloatMatrix
   zero: 0

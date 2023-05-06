@@ -28,6 +28,8 @@ model:
   array-type-impl: Double2DArrayImpl
   generic-array-type-impl: Double2DArrayImpl
   element-type: double
+  wrapper-type: Double
+  nio-buffer: DoubleBuffer
 matrix:
   class-name: DoubleMatrix
   zero: 0

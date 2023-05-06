@@ -37,7 +37,7 @@ import java.util.Set;
  * <p>
  * Provides only basic operations like drawing points, lines, rects, and circles.
  */
-public class {{&draw.generic-class-name}} {
+public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrapper-type}}, {{&model.generic-array-type}}, {{&draw.generic-class-name}}>  {
 
   private final {{&model.generic-array-type}} canvas;
   private final Rectangle clip;
@@ -71,28 +71,13 @@ public class {{&draw.generic-class-name}} {
     return this.color;
   }
 
-  /**
-   * Sets the color.
-   *
-   * @param color The color to use
-   *
-   * @return This instance.
-   */
-  public {{&draw.generic-class-name}} color({{model.element-type}} color) {
+  @Override
+  public {{&draw.generic-class-name}} color({{model.wrapper-type}} color) {
     this.color = color;
     return this;
   }
 
-  /**
-   * Fills the cell at the specified coordinate with the current color.
-   * <p>
-   * If the coordinate is not in array, nothing happens.
-   *
-   * @param x The X coordinate
-   * @param y The Y coordinate
-   *
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} set(int x, int y) {
     if (this.clip.contains(x, y)) {
       this.canvas.setUnsafe(x, y, this.color);
@@ -100,18 +85,7 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
-  /**
-   * Draws a line from the given start to the end coordinate with the current color.
-   * <p>
-   * If parts of the line are outside the array, these portions are ignored.
-   *
-   * @param x0 X coordinate of the start point
-   * @param y0 Y coordinate of the start point
-   * @param x1 X coordinate of the end point
-   * @param y1 Y coordinate of the end point
-   *
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} line(int x0, int y0, int x1, int y1) {
     Line line = this.clip.intersect(new Line(x0, y0, x1, y1)).orElse(null);
     if (line == null) {
@@ -140,19 +114,7 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
-  /**
-   * Draws a rect with the current color.
-   * <p>
-   * If parts of the rect are outside the array, these portions are ignored. In order to draw a filled
-   * rect, use {@code fillRect}. The rect is identified by the coordinates of one of the rect diagonals.
-   *
-   * @param x0 X coordinate of the diagonal start point
-   * @param y0 Y coordinate of the diagonal start point
-   * @param x1 X coordinate of the diagonal end point
-   * @param y1 Y coordinate of the diagonal end point
-   *
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} rect(int x0, int y0, int x1, int y1) {
     return line(x0, y0, x1, y0)
           .line(x1, y0, x1, y1)
@@ -160,19 +122,7 @@ public class {{&draw.generic-class-name}} {
           .line(x0, y1, x0, y0);
   }
 
-  /**
-   * Fills a rect with the current color.
-   * <p>
-   * If parts of the rect are outside the array, these portions are ignored. In order to draw the outline
-   * of a rect, use {@code rect}. The rect is identified by the coordinates of one of the rect diagonals.
-   *
-   * @param x0 X coordinate of the diagonal start point
-   * @param y0 Y coordinate of the diagonal start point
-   * @param x1 X coordinate of the diagonal end point
-   * @param y1 Y coordinate of the diagonal end point
-   *
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} fillRect(int x0, int y0, int x1, int y1) {
     Rectangle toDraw = this.clip.intersect(new Rectangle(
       Math.min(x0, x1),
@@ -191,18 +141,7 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
-  /**
-   * Draws a circle with the current color.
-   * <p>
-   * If parts of the circle are outside the array, these portions are ignored. In order to fill a
-   * circle, use {@code fillCircle}.
-   *
-   * @param x0 X coordinate of circle center
-   * @param y0 Y coordinate of  circle center
-   * @param r The radius of the instance
-   *
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} circle(int x0, int y0, int r) {
     int d = -r;
     int x = r;
@@ -229,19 +168,7 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
-
-  /**
-  * Fills a circle with the current color.
-  * <p>
-  * If parts of the circle are outside the array, these portions are ignored. In order to draw the outline
-  * of a circle, use {@code circle}.
-  *
-  * @param x0 X coordinate of circle center
-  * @param y0 Y coordinate of  circle center
-  * @param r The radius of the instance
-  *
-  * @return This instance.
-  */
+  @Override
   public {{&draw.generic-class-name}} fillCircle(int x0, int y0, int r) {
     int d = -r;
     int x = r;
@@ -264,16 +191,7 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
-  /**
-   * Draws {@code image} at the given position.
-   * <p>
-   * If parts of the image are outside the array, these portions are ignored.
-   *
-   * @param x0 X coordinate where to place the left side of the image
-   * @param y0 Y coordinate where to place the top side of the image
-   * @param image The image
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} image(int x0, int y0, {{&model.generic-array-type}} image) {
     Rectangle imageRect = new Rectangle(x0, y0, image.getWidth(), image.getHeight());
     Rectangle affectedRect = imageRect.intersect(this.clip).orElse(null);
@@ -291,13 +209,7 @@ public class {{&draw.generic-class-name}} {
     return this;
   }
 
-  /**
-   * Performs a flood fill using the current color.
-   *
-   * @param x0 X coordinate of the point to start with
-   * @param y0 Y coordinate of the point to start with
-   * @return This instance.
-   */
+  @Override
   public {{&draw.generic-class-name}} fill(int x0, int y0) {
     if (!clip.contains(x0, y0)) {
       return this;

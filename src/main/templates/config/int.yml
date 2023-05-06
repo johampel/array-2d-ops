@@ -28,6 +28,8 @@ model:
   array-type-impl: Int2DArrayImpl
   generic-array-type-impl: Int2DArrayImpl
   element-type: int
+  wrapper-type: Integer
+  nio-buffer: IntBuffer
 matrix:
   class-name: IntMatrix
   zero: 0
