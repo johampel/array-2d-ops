@@ -42,6 +42,8 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
   private final {{&model.generic-array-type}} canvas;
   private final Rectangle clip;
   private {{model.element-type}} color;
+  private int originX;
+  private int originY;
 
   /**
    * Constructor.
@@ -78,16 +80,23 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
   }
 
   @Override
+  public {{&draw.generic-class-name}} origin(int x, int y) {
+    this.originX = x;
+    this.originY = y;
+    return this;
+  }
+
+  @Override
   public {{&draw.generic-class-name}} set(int x, int y) {
-    if (this.clip.contains(x, y)) {
-      this.canvas.setUnsafe(x, y, this.color);
+    if (this.clip.contains(x + originX, y + originY)) {
+      this.canvas.setUnsafe(x + originX, y + originY, this.color);
     }
     return this;
   }
 
   @Override
   public {{&draw.generic-class-name}} line(int x0, int y0, int x1, int y1) {
-    Line line = this.clip.intersect(new Line(x0, y0, x1, y1)).orElse(null);
+    Line line = this.clip.intersect(new Line(x0 + originX, y0 + originY, x1 + originX, y1 + originY)).orElse(null);
     if (line == null) {
       return this;
     }
@@ -102,7 +111,7 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
     int err = dx + dy, e2; /* error value e_xy */
 
     while (true) {
-      set(x0, y0);
+      this.canvas.setUnsafe(x0, y0, this.color);
       if (x0 == x1 && y0 == y1) {
         break;
       }
@@ -125,17 +134,17 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
   @Override
   public {{&draw.generic-class-name}} fillRect(int x0, int y0, int x1, int y1) {
     Rectangle toDraw = this.clip.intersect(new Rectangle(
-      Math.min(x0, x1),
-      Math.min(y0, y1),
+      Math.min(x0, x1) + originX,
+      Math.min(y0, y1) + originY,
       Math.abs(x1 - x0),
       Math.abs(y1 - y0))).orElse(null);
     if (toDraw != null) {
       int h = toDraw.height();
-      int x = toDraw.x();
-      int y = toDraw.y();
-      int yw = y + toDraw.width();
+      int x = toDraw.x() - originX;
+      int y = toDraw.y() - originY;
+      int w = x + toDraw.width();
       for(int i = 0; i < h + 1; i++) {
-        line(x, y + i, yw, y + i);
+        line(x, y + i, w, y + i);
       }
     }
     return this;
@@ -193,7 +202,7 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
 
   @Override
   public {{&draw.generic-class-name}} image(int x0, int y0, {{&model.generic-array-type}} image) {
-    Rectangle imageRect = new Rectangle(x0, y0, image.getWidth(), image.getHeight());
+    Rectangle imageRect = new Rectangle(x0 + originX, y0 + originY, image.getWidth(), image.getHeight());
     Rectangle affectedRect = imageRect.intersect(this.clip).orElse(null);
     if (affectedRect == null) {
       return null;
@@ -211,13 +220,13 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
 
   @Override
   public {{&draw.generic-class-name}} fill(int x0, int y0) {
-    if (!clip.contains(x0, y0)) {
+    if (!clip.contains(x0 + originX, y0 + originY)) {
       return this;
     }
 
     {{model.element-type}} old = canvas.get(x0, y0);
     Set<Point> toBeDone = new HashSet<>();
-    toBeDone.add(new Point(x0, y0));
+    toBeDone.add(new Point(x0 + originX, y0 + originY));
     while (!toBeDone.isEmpty()) {
       Point next = toBeDone.iterator().next();
       toBeDone.remove(next);

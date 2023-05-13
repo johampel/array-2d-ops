@@ -50,7 +50,7 @@ public record Rectangle(int x, int y, int width, int height) {
    * @return The right most x coordinate
    */
   public int getRight() {
-    return x + width - 1;
+    return width == 0? x : x + width - 1;
   }
 
   /**
@@ -68,7 +68,7 @@ public record Rectangle(int x, int y, int width, int height) {
    * @return The bottom most y coordinate.
    */
   public int getBottom() {
-    return y + height - 1;
+    return height == 0? y : y + height - 1;
   }
 
   /**
@@ -111,9 +111,9 @@ public record Rectangle(int x, int y, int width, int height) {
       double upper_x = getRight();
       if (m != 0.0) {
         double l = (y - b) / m;
-        double u = (y + height - b) / m;
+        double u = (getBottom() - b) / m;
         lower_x = Math.max(x, Math.min(l, u));
-        upper_x = Math.min(x + width, Math.max(l, u));
+        upper_x = Math.min(getRight(), Math.max(l, u));
       }
 
       double min = Math.max(lower_x, Math.min(line.x0(), line.x1()));

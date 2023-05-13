@@ -105,7 +105,6 @@ public class Char2DArrayDrawContextTest {
         ..........A.........
         ..........A.........""");
   }
-
   @Test
   public void rect() {
     context
