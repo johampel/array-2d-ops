@@ -112,7 +112,7 @@ public enum Transformation {
   /**
    * Chains the {@code first} with the {@code further} transformations and builds the resulting
    * one.
-   * <p/>
+   * <p>
    * For example, chaining a {@link #FLIP_X} with a {@link #TRANSPOSE} is the same as
    * {@link #ROTATE_CLOCKWISE_270}.
    *

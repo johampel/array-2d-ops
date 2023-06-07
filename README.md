@@ -31,6 +31,22 @@ So the library provides several ways to deal with 2D arrays in general:
       for `Byte2DArrays` which use `byte` as element type.
 
 
+## Usage
+
+#### Maven
+```xml
+    <dependency>
+      <groupId>de.hipphampel</groupId>
+      <artifactId>array-2d-ops</artifactId>
+      <version>VERSION/version>
+    </dependency>
+```
+#### Gradle
+```groovy
+    implementation 'de.hipphampel:array-2d-ops:VERSION'
+```
+
+
 ## Basic examples
 
 ### The 2D array model classes

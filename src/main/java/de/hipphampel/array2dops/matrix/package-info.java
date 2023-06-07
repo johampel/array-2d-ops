@@ -28,14 +28,14 @@
  * {@link de.hipphampel.array2dops.matrix.DoubleMatrix}, which provides a set of static methods.
  * <p>
  * Some examples:
- * <pre><tt>
+ * <pre>
  *   Double2DArray matrix1 = DoubleMatrix.newMatrix(new double[]{1, 2, 3, 4, 5, 6}, 3, 2); // Creates a new 3x2 matrix
  *   Double2DArray matrix2 = DoubleMatrix.newMatrix(new double[]{7, 8, 9, 0, 1, 2}, 3, 2); // Creates a new 3x2 matrix
  *
  *   Double2DArray result1 = DoubleMatrix.add(matrix1, matrix2); // add
  *   Double2DArray result2 = DoubleMatrix.mul(matrix1, DoubleMatrix.transposeInplace(matrix2)); // mul
  *   Double2DArray result3 = DoubleMatrix.scalarMul(matrix1, matrix2); // scalar multiplication
- * </tt></pre>
+ * </pre>
  * <p>
  * For a complete list of the available methods, please refer to the class documentation.
  */

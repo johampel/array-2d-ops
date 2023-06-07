@@ -20,6 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+/**
+ * Module {@code array-2d-ops}
+ */
 module de.hipphampel.array2dops {
 
   exports de.hipphampel.array2dops.draw;

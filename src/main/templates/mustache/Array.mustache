@@ -23,6 +23,7 @@
 package de.hipphampel.array2dops.model;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,9 +41,8 @@ import de.hipphampel.array2dops.geom.TransformationMatrix;
  * Interface provides methods to obtain the dimensions of the 2D array and get/set individual entires
  * in that array. Also, there are several methods to create sub arrays and transformed views on the
  * array (e.g. a transposed view, rotated view, and so on).
- * <p>
  */
-public interface {{&model.generic-array-type}} {
+public interface {{&model.generic-array-type}} extends Serializable {
 
   /**
    * Factory method to create an empty instance.

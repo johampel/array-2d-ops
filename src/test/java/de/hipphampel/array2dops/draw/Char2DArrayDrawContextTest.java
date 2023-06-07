@@ -24,6 +24,7 @@ package de.hipphampel.array2dops.draw;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import de.hipphampel.array2dops.model.Byte2DArray;
 import de.hipphampel.array2dops.model.Char2DArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -105,6 +106,7 @@ public class Char2DArrayDrawContextTest {
         ..........A.........
         ..........A.........""");
   }
+
   @Test
   public void rect() {
     context
@@ -257,9 +259,9 @@ public class Char2DArrayDrawContextTest {
         .image(16, -2, image);
 
     assertCanvas("""
-        MNO.............LMNO
-        RST.............QRST
-        WXY.............VWXY
+        MNO.............KLMN
+        RST.............PQRS
+        WXY.............UVWX
         ....................
         ....................
         ....................
@@ -274,9 +276,64 @@ public class Char2DArrayDrawContextTest {
         ....................
         ....................
         ....................
-        MNO..............MNO
-        RST..............RST
-        WXY..............WXY""");
+        CDE..............ABC
+        HIJ..............FGH
+        MNO..............KLM""");
+  }
+
+  @Test
+  public void image_origin() {
+    Char2DArray image = Char2DArray.newInstance("ABCDEFGHIJKLMNOPQRSTUVWXY".toCharArray(), 5, 5);
+
+    context
+        .origin(-2, -2)
+        .image(0, 0, image)
+        .origin(-2, 17)
+        .image(0, 0, image)
+        .origin(8, 8)
+        .image(0, 0, image)
+        .origin(17, 17)
+        .image(0, 0, image)
+        .origin(16, -2)
+        .image(0, 0, image);
+
+    assertCanvas("""
+        MNO.............KLMN
+        RST.............PQRS
+        WXY.............UVWX
+        ....................
+        ....................
+        ....................
+        ....................
+        ....................
+        ........ABCDE.......
+        ........FGHIJ.......
+        ........KLMNO.......
+        ........PQRST.......
+        ........UVWXY.......
+        ....................
+        ....................
+        ....................
+        ....................
+        CDE..............ABC
+        HIJ..............FGH
+        MNO..............KLM""");
+  }
+
+  @Test
+  public void image_bigger() {
+    Char2DArray image = Char2DArray.newInstance("ABCDEFGHIJKLMNOPQRSTUVWXY".toCharArray(), 5, 5);
+
+    canvas = Char2DArray.newInstance(3, 3);
+    canvas.fill('.');
+    context = new Char2DArrayDrawContext(canvas);
+    context
+        .image(0, 0, image);
+
+    assertCanvas("""
+        ABC
+        FGH
+        KLM""");
   }
 
   @Test
@@ -318,7 +375,6 @@ public class Char2DArrayDrawContextTest {
         AAAAAAA.....A.......
         ............A.......
         ............AAAAAAAA""");
-
 
     // ACT
     context.color('X').fill(10, 10);

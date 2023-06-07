@@ -202,15 +202,17 @@ public class {{&draw.generic-class-name}} implements DrawOperations<{{model.wrap
 
   @Override
   public {{&draw.generic-class-name}} image(int x0, int y0, {{&model.generic-array-type}} image) {
-    Rectangle imageRect = new Rectangle(x0 + originX, y0 + originY, image.getWidth(), image.getHeight());
+    x0 += originX;
+    y0 += originY;
+    Rectangle imageRect = new Rectangle(x0, y0, image.getWidth(), image.getHeight());
     Rectangle affectedRect = imageRect.intersect(this.clip).orElse(null);
     if (affectedRect == null) {
       return null;
     }
 
     {{&model.generic-array-type}} imageRegion = image.shallowRegion(
-      Math.max(0, imageRect.width() - affectedRect.width()),
-      Math.max(0, imageRect.height() - affectedRect.height()),
+      Math.max(0, affectedRect.x() - imageRect.x()),
+      Math.max(0, affectedRect.y() - imageRect.y()),
       affectedRect.width(),
       affectedRect.height());
     this.canvas.fillFrom(Math.max(0, x0), Math.max(0, y0), imageRegion);

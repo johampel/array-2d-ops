@@ -31,11 +31,11 @@
  * <p>
  * The (more or less trivial) base functionality of all these classes is that they allow to get and
  * set an individual value within the array usng the {@code get} and {@code set} methods, e.g.:
- * <pre><tt>
+ * <pre>
  *   var anArray = Char2DArray.newInstance(10, 5); // Creates an array with 10 columns and 5 rows
  *   anArray.set(1, 2, 'f'); // sets a cell
  *   vat value = anArray.get(9, 4); // gets an value
- * </tt></pre>
+ * </pre>
  * <p>
  * The array classes provide additional functionality in terms of building sub arrays or
  * transformations, whereas both operation can be done in a way that a sub-array or transformation
@@ -43,10 +43,10 @@
  * <p>
  * For example, the following code creates a main array and a sub array for a specific range that
  * shares the memory with the main array:
- * <pre><tt>
+ * <pre>
  *   var anArray = Char2DArray.newInstance(10, 5); // Creates an array with 10 columns and 5 rows
  *   var aRegion = anArray.shallowRegion(0, 1, 2, 3);
  *   var shouldBeTrue =  anArray.get(2, 2) =  aRegion(2, 3);
- * </tt></pre>
+ * </pre>
  */
 package de.hipphampel.array2dops.model;
