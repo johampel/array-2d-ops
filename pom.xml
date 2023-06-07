@@ -30,7 +30,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>de.hipphampel</groupId>
-  <artifactId>array-2d-ops</artifactId>
+  <artifactId>array2dops</artifactId>
   <version>jgitver-provided-version</version>
 
   <description>Provides operations on 2D arrays</description>
