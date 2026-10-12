@@ -112,12 +112,33 @@ public interface {{&model.generic-array-type}} extends Serializable {
     int w = getWidth();
     int h = getHeight();
     {{model.element-type}}[] array = {{#is-generic}}(T[])new Object{{/is-generic}}{{^is-generic}}new {{model.element-type}}{{/is-generic}}[w * h];
+    this.copyToArray(array);
+    return array;
+  }
+
+  /**
+   * Copies the data of this instance into the plain array <code>target</code>
+   * The method fails in case the target array has not the required exact size with an
+   *
+   * @param target the Array to copy to
+   *
+   * @throws ArrayIndexOutOfBoundsException if the <code>target</code> array has not the required
+   * size
+   */
+  default void copyToArray({{model.element-type}}[] target) {
+    int w = getWidth();
+    int h = getHeight();
+    if (target.length != w*h) {
+      throw new ArrayIndexOutOfBoundsException(
+        String.format(
+          "Array with width=%d, height=%d cannot be copied into an array of length=%d",
+          w, h, target.length));
+    }
     for(int x = 0; x < w; x++) {
       for(int y = 0; y < h; y++) {
-        array[x + w * y] = getUnsafe(x, y);
+        target[x + w * y] = getUnsafe(x, y);
       }
     }
-    return array;
   }
 
   {{#model.nio-buffer}}

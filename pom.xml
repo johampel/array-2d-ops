@@ -31,7 +31,7 @@
 
   <groupId>de.hipphampel</groupId>
   <artifactId>array-2d-ops</artifactId>
-  <version>jgitver-provided-version</version>
+  <version>managed version by git-versioning-extension</version>
 
   <description>Provides operations on 2D arrays</description>
   <url>https://github.com/johampel/array-2d-ops</url>
@@ -70,25 +70,25 @@
     <maven.compiler.target>17</maven.compiler.target>
 
     <!-- Plugin Versions -->
-    <maven-build-helper-plugin.version>3.3.0</maven-build-helper-plugin.version>
-    <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
-    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
-    <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
-    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-    <maven-license-plugin.version>4.1</maven-license-plugin.version>
+    <maven-build-helper-plugin.version>3.6.2</maven-build-helper-plugin.version>
+    <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+    <maven-deploy-plugin.version>3.2.0</maven-deploy-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+    <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
+    <maven-install-plugin.version>3.2.0</maven-install-plugin.version>
+    <maven-license-plugin.version>5.1.2</maven-license-plugin.version>
     <mustache-maven-plugin.version>1.1</mustache-maven-plugin.version>
-    <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
-    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+    <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
+    <maven-site-plugin.version>3.22.0</maven-site-plugin.version>
+    <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
 
     <!-- Dependencies -->
-    <assertj.version>3.22.0</assertj.version>
-    <junit.version>5.4.0</junit.version>
-    <mockito.version>4.5.1</mockito.version>
+    <assertj.version>3.27.7</assertj.version>
+    <junit.version>6.1.3</junit.version>
+    <mockito.version>5.24.0</mockito.version>
   </properties>
 
   <dependencies>
