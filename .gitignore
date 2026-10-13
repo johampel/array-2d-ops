@@ -1,7 +1,7 @@
 # Build
 target/
 logs/
-pom.xml.versionsBackup
+.git-versioned-pom.xml
 .repository
 
 # Intellij
