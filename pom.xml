@@ -38,7 +38,7 @@
 
   <scm>
     <connection>scm:git:git@github.com:johampel/array-2d-ops.git</connection>
-    <developerConnection>scm:git:ssh://github.com:johampel/array-2d-ops.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/johampel/array-2d-ops.git</developerConnection>
     <url>https://github.com/johampel/array-2d-ops/</url>
   </scm>
 
